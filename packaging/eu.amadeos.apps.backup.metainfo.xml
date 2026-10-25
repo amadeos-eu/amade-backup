@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata of amade-backup, installed as /usr/share/metainfo/eu.amadeos.apps.backup.metainfo.xml.
+     amadeOS Software shows it for the installed package; a repository's appstream-generator reads it too. -->
+<component type="desktop-application">
+  <id>eu.amadeos.apps.backup</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>EUPL-1.2</project_license>
+
+  <name>amadeOS Backup &amp; Sync</name>
+  <name xml:lang="de">amadeOS Sicherung &amp; Abgleich</name>
+  <name xml:lang="fr">amadeOS Sauvegarde &amp; Synchro</name>
+  <name xml:lang="es">amadeOS Copias &amp; Sincronización</name>
+  <name xml:lang="it">amadeOS Backup &amp; Sincronizzazione</name>
+
+  <summary>Back up your home folder and keep folders in sync</summary>
+  <summary xml:lang="de">Den persönlichen Ordner sichern und Ordner abgleichen</summary>
+  <summary xml:lang="fr">Sauvegarder votre dossier personnel et synchroniser des dossiers</summary>
+  <summary xml:lang="es">Hacer copias de su carpeta personal y sincronizar carpetas</summary>
+  <summary xml:lang="it">Fare il backup della cartella personale e sincronizzare cartelle</summary>
+
+  <description>
+    <p>amade-backup backs up your home folder to an external disk, encrypted and compressed, and keeps older versions so you can go back in time. An assistant sets up the backup in five steps; restoring shows a timeline of the backups and tells you which files have changed or are gone since.</p>
+    <p xml:lang="de">amade-backup sichert Ihren persönlichen Ordner verschlüsselt und komprimiert auf einen externen Datenträger und bewahrt ältere Fassungen auf, damit Sie in der Zeit zurückgehen können. Ein Assistent richtet die Sicherung in fünf Schritten ein; beim Wiederherstellen sehen Sie eine Zeitleiste der Sicherungen und welche Dateien sich seitdem geändert haben oder fehlen.</p>
+    <p xml:lang="fr">amade-backup sauvegarde votre dossier personnel sur un disque externe, chiffré et compressé, et garde les anciennes versions pour remonter le temps. Un assistant configure la sauvegarde en cinq étapes ; la restauration montre une frise des sauvegardes et les fichiers modifiés ou disparus depuis.</p>
+    <p xml:lang="es">amade-backup hace copias de su carpeta personal en un disco externo, cifradas y comprimidas, y conserva versiones antiguas para volver atrás en el tiempo. Un asistente configura la copia en cinco pasos; al restaurar ve una línea de tiempo de las copias y qué archivos han cambiado o faltan desde entonces.</p>
+    <p xml:lang="it">amade-backup fa il backup della cartella personale su un disco esterno, cifrato e compresso, e conserva le versioni più vecchie per tornare indietro nel tempo. Un assistente configura il backup in cinque passi; il ripristino mostra una linea del tempo dei backup e quali file sono cambiati o mancano da allora.</p>
+    <ul>
+      <li>Home backup that chooses what you cannot get back and leaves out caches and the trash</li>
+      <li xml:lang="de">Sicherung des persönlichen Ordners, die wählt, was Sie nicht wiederbekommen, und Zwischenspeicher und Papierkorb auslässt</li>
+      <li xml:lang="fr">Sauvegarde du dossier personnel qui choisit ce que vous ne pourriez pas récupérer et exclut les caches et la corbeille</li>
+      <li xml:lang="es">Copia de la carpeta personal que elige lo que no podría recuperar y excluye las cachés y la papelera</li>
+      <li xml:lang="it">Backup della cartella personale che sceglie ciò che non potreste recuperare ed esclude cache e cestino</li>
+      <li>Daily or weekly backups with a keep policy, the password in the keyring and a printed recovery sheet</li>
+      <li xml:lang="de">Tägliche oder wöchentliche Sicherungen mit Aufbewahrungsregeln, das Passwort im Schlüsselbund und ein gedrucktes Notfallblatt</li>
+      <li xml:lang="fr">Sauvegardes quotidiennes ou hebdomadaires avec règles de conservation, le mot de passe dans le trousseau et une fiche de secours imprimée</li>
+      <li xml:lang="es">Copias diarias o semanales con reglas de conservación, la contraseña en el llavero y una hoja de recuperación impresa</li>
+      <li xml:lang="it">Backup giornalieri o settimanali con regole di conservazione, la password nel portachiavi e un foglio di recupero stampato</li>
+      <li>Folder sync that shows every copy and removal before it starts and moves removed files to the trash</li>
+      <li xml:lang="de">Ordnerabgleich, der jede Kopie und jedes Entfernen vor dem Start zeigt und entfernte Dateien in den Papierkorb legt</li>
+      <li xml:lang="fr">Synchronisation de dossiers qui montre chaque copie et suppression avant de commencer et met les fichiers retirés à la corbeille</li>
+      <li xml:lang="es">Sincronización de carpetas que muestra cada copia y cada borrado antes de empezar y lleva los archivos quitados a la papelera</li>
+      <li xml:lang="it">Sincronizzazione di cartelle che mostra ogni copia e rimozione prima di iniziare e sposta i file tolti nel cestino</li>
+      <li>Standard restic repositories that other systems can read too</li>
+      <li xml:lang="de">Übliche restic-Repositorys, die auch andere Systeme lesen können</li>
+      <li xml:lang="fr">Dépôts restic standard que d'autres systèmes savent lire aussi</li>
+      <li xml:lang="es">Repositorios restic estándar que otros sistemas también pueden leer</li>
+      <li xml:lang="it">Repository restic standard leggibili anche da altri sistemi</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">amade-backup.desktop</launchable>
+  <icon type="stock">amade-backup</icon>
+  <categories>
+    <category>Utility</category>
+    <category>Archiving</category>
+  </categories>
+
+  <url type="homepage">https://github.com/datazuul/amade-backup</url>
+  <url type="bugtracker">https://github.com/datazuul/amade-backup/issues</url>
+  <developer id="eu.amadeos">
+    <name>amadeOS Project</name>
+  </developer>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The home folder backup with its history</caption>
+      <caption xml:lang="de">Die Sicherung des persönlichen Ordners mit ihrem Verlauf</caption>
+      <caption xml:lang="fr">La sauvegarde du dossier personnel avec son historique</caption>
+      <caption xml:lang="es">La copia de la carpeta personal con su historial</caption>
+      <caption xml:lang="it">Il backup della cartella personale con la sua cronologia</caption>
+      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Restoring files from the timeline</caption>
+      <caption xml:lang="de">Dateien aus der Zeitleiste wiederherstellen</caption>
+      <caption xml:lang="fr">Restaurer des fichiers depuis la frise</caption>
+      <caption xml:lang="es">Restaurar archivos desde la línea de tiempo</caption>
+      <caption xml:lang="it">Ripristinare file dalla linea del tempo</caption>
+      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-restore.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The preview of a folder sync</caption>
+      <caption xml:lang="de">Die Vorschau eines Ordnerabgleichs</caption>
+      <caption xml:lang="fr">L'aperçu d'une synchronisation de dossiers</caption>
+      <caption xml:lang="es">La vista previa de una sincronización de carpetas</caption>
+      <caption xml:lang="it">L'anteprima di una sincronizzazione di cartelle</caption>
+      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-sync.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The assistant for the home folder backup</caption>
+      <caption xml:lang="de">Der Assistent für die Sicherung des persönlichen Ordners</caption>
+      <caption xml:lang="fr">L'assistant de sauvegarde du dossier personnel</caption>
+      <caption xml:lang="es">El asistente de la copia de la carpeta personal</caption>
+      <caption xml:lang="it">L'assistente per il backup della cartella personale</caption>
+      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-assistant.png</image>
+    </screenshot>
+  </screenshots>
+
+  <provides>
+    <binary>amade-backup</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+</component>

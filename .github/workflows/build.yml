@@ -1,0 +1,119 @@
+name: Build
+
+# develop builds X.Y.Z-dev.N, release X.Y.Z-pre.N and main the release X.Y.Z, which the release job
+# tags and publishes with the package (see CONTRIBUTING.md of datazuul/amadeos, "Commits and versions").
+on:
+  push:
+    branches: [develop, release, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      channel: ${{ steps.version.outputs.channel }}
+    steps:
+      # --8<-- [start:version]
+      - uses: actions/checkout@v7
+        with:
+          # The version is computed from the history since the last release tag.
+          fetch-depth: 0
+      - id: version
+        uses: datazuul/amadeos-ci/version@main
+        with:
+          metainfo: packaging/eu.amadeos.apps.backup.metainfo.xml
+      # --8<-- [end:version]
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          # Plain actions/cache instead of the proprietary enhanced cache that is the v6 default.
+          cache-provider: basic
+      # The engine tests run the real restic against a repository in a temporary folder.
+      - name: Install restic
+        run: sudo apt-get update -q && sudo apt-get install -y -q restic
+      # The Swing integration tests skip themselves without a display, so run under Xvfb.
+      - name: Test
+        run: xvfb-run --auto-servernum ./gradlew test --no-daemon
+      - name: Check that the tests ran
+        run: |
+          count=$(grep -ho 'tests="[0-9]*"' build/test-results/test/*.xml | grep -o '[0-9]*' | paste -sd+ | bc)
+          skipped=$(grep -ho 'skipped="[0-9]*"' build/test-results/test/*.xml | grep -o '[0-9]*' | paste -sd+ | bc)
+          echo "Tests run: $count, skipped: $skipped"
+          test "$count" -ge 50
+          test "$skipped" -eq 0
+      # --8<-- [start:package]
+      - name: Package
+        run: ./gradlew jar deb --no-daemon -PappVersion=${{ steps.version.outputs.version }}
+      # --8<-- [end:package]
+      - name: Check the fat jar and the package
+        run: |
+          jar=$(ls build/libs/amade-backup-*.jar)
+          unzip -l "$jar" icons/amade-backup.png
+          unzip -p "$jar" META-INF/MANIFEST.MF | grep -q 'Main-Class: eu.amadeos.apps.backup'
+          deb=$(ls build/distributions/amade-backup_*_all.deb)
+          dpkg-deb --info "$deb"
+          dpkg-deb --contents "$deb" > contents.txt
+          for f in opt/amade-backup/amade-backup.jar usr/bin/amade-backup \
+                   usr/share/applications/amade-backup.desktop \
+                   usr/share/icons/hicolor/48x48/apps/amade-backup.png \
+                   usr/share/metainfo/eu.amadeos.apps.backup.metainfo.xml usr/share/doc/amade-backup/copyright; do
+            grep -q "$f" contents.txt || { echo "missing in the package: $f"; exit 1; }
+          done
+          test "$(dpkg-deb --field "$deb" Version)" = "${{ steps.version.outputs.deb-version }}"
+          unzip -p "$jar" META-INF/MANIFEST.MF | grep -q "Implementation-Version: ${{ steps.version.outputs.version }}"
+      - name: Check the AppStream metadata
+        run: |
+          sudo apt-get install -y -q appstream
+          appstreamcli validate --no-net packaging/eu.amadeos.apps.backup.metainfo.xml
+      - name: Upload the Debian package
+        uses: actions/upload-artifact@v7
+        with:
+          name: amade-backup-deb
+          path: build/distributions/*.deb
+          if-no-files-found: error
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: build/reports/tests/test
+
+  # --8<-- [start:release]
+  # Only on main, after the release branch was promoted: tag vX.Y.Z and publish the GitHub Release.
+  release:
+    needs: test
+    if: needs.test.outputs.channel == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: amade-backup-deb
+          path: dist
+      - uses: datazuul/amadeos-ci/release@main
+        with:
+          version: ${{ needs.test.outputs.version }}
+          files: dist/*.deb
+  # --8<-- [end:release]
+
+  # --8<-- [start:commits]
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: datazuul/amadeos-ci/check-commits@main
+  # --8<-- [end:commits]
