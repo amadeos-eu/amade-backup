@@ -34,6 +34,7 @@ public final class Timeline {
     private Timeline() {
     }
 
+    // --8<-- [start:of]
     public static List<Row> of(List<Snapshot> snapshots, LocalDate today, ZoneId zone, Locale locale) {
         List<Snapshot> sorted = new ArrayList<>(snapshots);
         sorted.sort(Comparator.comparing(Snapshot::time).reversed());
@@ -62,4 +63,5 @@ public final class Timeline {
         }
         return rows;
     }
+    // --8<-- [end:of]
 }

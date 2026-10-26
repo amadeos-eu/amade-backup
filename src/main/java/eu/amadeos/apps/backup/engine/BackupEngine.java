@@ -16,6 +16,7 @@ import java.util.function.Consumer;
  * today ({@link eu.amadeos.apps.backup.engine.restic.ResticEngine}), an engine of our own could replace it.
  * Every method blocks and must run off the event dispatch thread.
  */
+// --8<-- [start:engine]
 public interface BackupEngine {
     /** The engine's name and version, e.g. "restic 0.18.0". */
     String version() throws EngineException;
@@ -58,3 +59,4 @@ public interface BackupEngine {
     /** Checks the repository and reads {@code readPercent} percent of the data; the problems, empty if none. */
     List<String> check(Repository repository, int readPercent, Cancellation cancellation) throws EngineException;
 }
+// --8<-- [end:engine]

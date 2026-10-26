@@ -36,6 +36,7 @@ public class Passwords {
     }
 
     /** Six groups of five letters and digits, about 150 bits: "k7mqa-3xv9p-...". */
+    // --8<-- [start:generate]
     public String generate() {
         StringBuilder sb = new StringBuilder();
         for (int group = 0; group < 6; group++) {
@@ -44,6 +45,7 @@ public class Passwords {
         }
         return sb.toString();
     }
+    // --8<-- [end:generate]
 
     static String key(String jobId) {
         return "job:" + jobId;

@@ -23,6 +23,7 @@ public class Places {
         return disks;
     }
 
+    // --8<-- [start:resolve]
     public Optional<Path> resolve(Target target) {
         if (target.onRemovableDisk()) {
             return disks.byUuid(target.diskUuid()).map(d -> target.resolve(d.mountPoint()));
@@ -36,6 +37,7 @@ public class Places {
                 && parent.getParent() != null && Files.isDirectory(parent.getParent()));
         return there ? Optional.of(target.path()) : Optional.empty();
     }
+    // --8<-- [end:resolve]
 
     /** The target for a folder: on its disk when it lies on a plugged-in disk with a UUID. */
     public Target targetFor(Path folder) {

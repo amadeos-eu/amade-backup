@@ -43,8 +43,10 @@ public final class SyncPlanner {
         if (target.startsWith(source) || source.startsWith(target)) {
             throw new IOException("Source and target must not lie inside each other: " + source + ", " + target);
         }
+        // --8<-- [start:tolerance]
         boolean coarse = FileSystemInfo.isWindowsType(FileSystemInfo.type(target));
         long tolerance = coarse ? 2000 : 0;
+        // --8<-- [end:tolerance]
         List<SyncAction> actions = new ArrayList<>();
         Map<String, FileTime> folderTimes = new HashMap<>();
         copyPass(source, target, Path.of(""), options, excludes, tolerance, actions, folderTimes, cancellation);
@@ -94,6 +96,7 @@ public final class SyncPlanner {
         }
     }
 
+    // --8<-- [start:file]
     private static void file(String path, BasicFileAttributes src, BasicFileAttributes dst, SyncOptions options,
                              long tolerance, List<SyncAction> actions) {
         if (dst == null) {
@@ -119,6 +122,7 @@ public final class SyncPlanner {
         }
         actions.add(new SyncAction(SyncAction.Kind.UPDATE, path, false, src.size(), SyncAction.Reason.TIME));
     }
+    // --8<-- [end:file]
 
     private void deletePass(Path sourceRoot, Path targetRoot, Path relative, Patterns excludes, List<SyncAction> actions,
                             Cancellation cancellation) throws IOException, EngineException {

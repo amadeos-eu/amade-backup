@@ -54,6 +54,7 @@ public final class HomeLayout {
     }
 
     /** The area of a path relative to the home folder; empty for caches and the trash. */
+    // --8<-- [start:area]
     public Optional<HomeArea> areaOf(Path relative) {
         String path = relative.normalize().toString().replace('\\', '/');
         for (String out : ALWAYS_LEFT_OUT) {
@@ -65,6 +66,7 @@ public final class HomeLayout {
         if (area != null) return Optional.of(area);
         return Optional.of(first.startsWith(".") ? HomeArea.SETTINGS : HomeArea.OTHER);
     }
+    // --8<-- [end:area]
 
     /**
      * The absolute paths to leave out so that only {@code included} is backed up: whole folders where possible,

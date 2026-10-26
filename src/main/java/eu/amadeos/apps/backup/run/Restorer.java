@@ -67,6 +67,7 @@ public class Restorer {
         return destination == null ? original : destination.resolve(original.getFileName().toString());
     }
 
+    // --8<-- [start:restore]
     public Result restore(Repository repository, String snapshotId, List<SnapshotEntry> entries, Path destination,
                           Conflicts conflicts, Consumer<BackupProgress> progress, Cancellation cancellation)
             throws EngineException {
@@ -89,6 +90,7 @@ public class Restorer {
             deleteTree(staging);
         }
     }
+    // --8<-- [end:restore]
 
     /** A folder on the same disk as the destination, so files are moved and not copied a second time. */
     Path staging(List<SnapshotEntry> entries, Path destination) throws EngineException {
@@ -117,6 +119,7 @@ public class Restorer {
                 }
                 return;
             }
+            // --8<-- [start:conflict]
             if (exists) {
                 switch (conflicts) {
                     case SKIP -> {
@@ -127,6 +130,7 @@ public class Restorer {
                     case KEEP_BOTH -> to = freeName(to);
                 }
             }
+            // --8<-- [end:conflict]
             Files.createDirectories(to.getParent());
             try {
                 Files.move(staged, to, StandardCopyOption.ATOMIC_MOVE);

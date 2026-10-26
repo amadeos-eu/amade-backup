@@ -160,6 +160,7 @@ tasks.register('installToAmadeOs') {
 
 // The pictures of the README and the AppStream metadata, from the real windows on a test scene with real
 // restic backups: xvfb-run ./gradlew screenshots
+// --8<-- [start:screenshots]
 tasks.register('screenshots', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'eu.amadeos.apps.backup.Screenshots'
@@ -167,3 +168,4 @@ tasks.register('screenshots', JavaExec) {
     systemProperty 'user.language', 'en'
     systemProperty 'user.country', 'GB'
 }
+// --8<-- [end:screenshots]
