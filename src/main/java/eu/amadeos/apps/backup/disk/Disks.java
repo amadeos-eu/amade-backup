@@ -34,6 +34,7 @@ public class Disks {
         return new Disks(Path.of("/proc/self/mounts"), Path.of("/dev/disk/by-uuid"), Path.of("/dev/disk/by-label"));
     }
 
+    // --8<-- [start:mounted]
     public List<Disk> mounted() {
         List<Disk> disks = new ArrayList<>();
         List<String> lines;
@@ -66,11 +67,14 @@ public class Disks {
         }
         return disks;
     }
+    // --8<-- [end:mounted]
 
+    // --8<-- [start:by-uuid]
     public Optional<Disk> byUuid(String uuid) {
         if (uuid == null || uuid.isEmpty()) return Optional.empty();
         return mounted().stream().filter(d -> d.uuid().equalsIgnoreCase(uuid)).findFirst();
     }
+    // --8<-- [end:by-uuid]
 
     /** The disk a path is on, if it is one of the mounted ones. */
     public Optional<Disk> containing(Path path) {

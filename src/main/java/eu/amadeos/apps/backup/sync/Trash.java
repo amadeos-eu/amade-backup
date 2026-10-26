@@ -42,11 +42,13 @@ public final class Trash {
     }
 
     /** The trash folder for files at {@code path}. */
+    // --8<-- [start:trash-for]
     Path trashFor(Path path) throws IOException {
         Path root = FileSystemInfo.mountRoot(path);
         if (Files.exists(home) && Files.getFileStore(home).equals(Files.getFileStore(root))) return homeTrash;
         return root.resolve(".Trash-" + uid);
     }
+    // --8<-- [end:trash-for]
 
     /** True if {@code path} is inside the trash of its disk; syncs leave those alone. */
     public boolean isTrash(Path path) {
@@ -79,6 +81,7 @@ public final class Trash {
         Path original = trash.equals(homeTrash) ? source : trash.getParent().relativize(source);
         for (int n = 1; ; n++) {
             String candidate = n == 1 ? name : name + "." + n;
+            // --8<-- [start:info]
             Path infoFile = info.resolve(candidate + ".trashinfo");
             try {
                 // Creating the info file first reserves the name, as the specification asks.
@@ -87,6 +90,7 @@ public final class Trash {
             } catch (FileAlreadyExistsException e) {
                 continue;
             }
+            // --8<-- [end:info]
             Path target = files.resolve(candidate);
             try {
                 Files.move(source, target);

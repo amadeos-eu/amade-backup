@@ -36,8 +36,10 @@ jobs:
           # Plain actions/cache instead of the proprietary enhanced cache that is the v6 default.
           cache-provider: basic
       # The engine tests run the real restic against a repository in a temporary folder.
+      # --8<-- [start:restic]
       - name: Install restic
         run: sudo apt-get update -q && sudo apt-get install -y -q restic
+      # --8<-- [end:restic]
       # The Swing integration tests skip themselves without a display, so run under Xvfb.
       - name: Test
         run: xvfb-run --auto-servernum ./gradlew test --no-daemon

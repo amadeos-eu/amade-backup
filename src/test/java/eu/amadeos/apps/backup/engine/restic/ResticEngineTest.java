@@ -31,6 +31,7 @@ class ResticEngineTest {
     static final Repository REPO = new Repository(Path.of("/media/ralf/BACKUP/amadeos-backup/home"), "secret");
 
     /** Answers each start with the next canned process and remembers the commands. */
+    // --8<-- [start:fake]
     static final class FakeRunner implements CommandRunner {
         final Deque<Process> answers = new ArrayDeque<>();
         final List<List<String>> commands = new ArrayList<>();
@@ -46,6 +47,7 @@ class ResticEngineTest {
             return answers.removeFirst();
         }
     }
+    // --8<-- [end:fake]
 
     @Test
     void theVersionLeavesOutTheBuildDetails() throws Exception {
@@ -64,6 +66,7 @@ class ResticEngineTest {
                 () -> new ResticEngine(missing).snapshots(REPO)).kind());
     }
 
+    // --8<-- [start:progress]
     @Test
     void aBackupReportsProgressAndItsSummary() throws Exception {
         String out = """
@@ -85,6 +88,7 @@ class ResticEngineTest {
         assertEquals(1500, s.bytesAdded());
         assertEquals(List.of(), s.errors());
     }
+    // --8<-- [end:progress]
 
     @Test
     void unreadableFilesMakeTheBackupIncompleteNotFailed() throws Exception {

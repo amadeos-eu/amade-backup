@@ -233,10 +233,12 @@ public final class ResticEngine implements BackupEngine {
     public void dump(Repository repository, String snapshotId, String path, Path file) throws EngineException {
         Path part = file.resolveSibling("." + file.getFileName() + ".part");
         try (OutputStream out = Files.newOutputStream(part)) {
+            // --8<-- [start:dump]
             // --quiet: without it restic writes "reading repository password from stdin" into the file.
             ResticCall.run(runner, program, repository, List.of("dump", "--quiet", snapshotId, path),
                     ResticCall.Output.copyTo(out),
                     Cancellation.none());
+            // --8<-- [end:dump]
         } catch (IOException e) {
             throw new EngineException(EngineException.Kind.FAILED, "Cannot write " + file + ": " + e.getMessage(), e);
         } catch (EngineException e) {
@@ -273,6 +275,7 @@ public final class ResticEngine implements BackupEngine {
         return new DiffStats(stats[0], stats[1], stats[2]);
     }
 
+    // --8<-- [start:forget]
     @Override
     public int forget(Repository repository, KeepPolicy keep, Cancellation cancellation) throws EngineException {
         List<String> args = new ArrayList<>(List.of("forget", "--json", "--group-by", "paths"));
@@ -287,6 +290,7 @@ public final class ResticEngine implements BackupEngine {
         if (removed > 0) run(repository, List.of("prune"), line -> { }, cancellation);
         return removed;
     }
+    // --8<-- [end:forget]
 
     @Override
     public List<String> check(Repository repository, int readPercent, Cancellation cancellation) throws EngineException {

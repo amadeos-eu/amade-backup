@@ -24,6 +24,7 @@ public record KeepPolicy(int withinDays, int daily, int weekly, int monthly, int
     }
 
     /** The options of {@code restic forget}; the newest backup is always kept. */
+    // --8<-- [start:restic]
     public List<String> resticOptions() {
         List<String> options = new ArrayList<>(List.of("--keep-last", "1"));
         if (withinDays > 0) options.addAll(List.of("--keep-within", withinDays + "d"));
@@ -33,4 +34,5 @@ public record KeepPolicy(int withinDays, int daily, int weekly, int monthly, int
         if (yearly > 0) options.addAll(List.of("--keep-yearly", Integer.toString(yearly)));
         return options;
     }
+    // --8<-- [end:restic]
 }

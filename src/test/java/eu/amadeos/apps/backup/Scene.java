@@ -171,6 +171,7 @@ public final class Scene {
     }
 
     /** A backup at a given time, which only restic itself can set; recorded in the history like a real run. */
+    // --8<-- [start:snapshot]
     private void snapshot(String time, int seconds, long added) throws Exception {
         String local = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(Instant.parse(time).atZone(ZoneId.systemDefault()));
         ProcessBuilder pb = new ProcessBuilder("restic", "--repo", repository.location().toString(), "backup", "--quiet",
@@ -185,4 +186,5 @@ public final class Scene {
         history.add(homeJob.id(), new RunRecord(Instant.parse(time), Duration.ofSeconds(seconds), RunResult.OK,
                 "schedule", 13, 1, 1, 0, added, id, ""), null);
     }
+    // --8<-- [end:snapshot]
 }

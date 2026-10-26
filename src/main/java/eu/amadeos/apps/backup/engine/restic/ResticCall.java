@@ -87,11 +87,13 @@ final class ResticCall {
             }
         });
         try {
+            // --8<-- [start:password]
             try (OutputStream in = process.getOutputStream()) {
                 in.write((repository.password() + "\n").getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 // restic did not wait for a password, or ended already
             }
+            // --8<-- [end:password]
             try (InputStream out = process.getInputStream()) {
                 output.read(out);
             } catch (IOException e) {
@@ -121,6 +123,7 @@ final class ResticCall {
     }
 
     /** The kind of a failure from restic's exit code (0.17 and later) or, for older versions, its message. */
+    // --8<-- [start:failure]
     static EngineException failure(Ending ending) {
         String text = ending.errorText();
         String lower = text.toLowerCase();
@@ -141,6 +144,7 @@ final class ResticCall {
         String message = text.isEmpty() ? "restic failed (exit code " + ending.exitCode() + ")" : lastFatal(text);
         return new EngineException(kind, message);
     }
+    // --8<-- [end:failure]
 
     /** The "Fatal: ..." line restic ends with, else the whole text. */
     private static String lastFatal(String text) {
