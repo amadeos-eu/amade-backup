@@ -1,0 +1,24 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=amadeOS Backup & Sync
+Name[de]=amadeOS Sicherung & Abgleich
+Name[fr]=amadeOS Sauvegarde & Synchro
+Name[es]=amadeOS Copias & Sincronización
+Name[it]=amadeOS Backup & Sincronizzazione
+GenericName=Backup
+GenericName[de]=Datensicherung
+GenericName[fr]=Sauvegarde
+GenericName[es]=Copia de seguridad
+GenericName[it]=Backup
+Comment=Back up your home folder to an external disk and keep folders in sync
+Comment[de]=Den persönlichen Ordner auf einen externen Datenträger sichern und Ordner abgleichen
+Comment[fr]=Sauvegarder votre dossier personnel sur un disque externe et synchroniser des dossiers
+Comment[es]=Hacer copias de su carpeta personal en un disco externo y sincronizar carpetas
+Comment[it]=Fare il backup della cartella personale su un disco esterno e sincronizzare cartelle
+Icon=amade-backup
+Exec=/usr/bin/amade-backup
+Terminal=false
+Categories=Utility;Archiving;
+Keywords=backup;restore;sync;mirror;snapshot;restic;Sicherung;Datensicherung;Wiederherstellen;Abgleich;sauvegarde;copia;
+StartupNotify=true

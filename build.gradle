@@ -1,0 +1,169 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'eu.amadeos'
+// --8<-- [start:version]
+// CI computes the version from the Conventional Commits since the last release tag and passes it as
+// -PappVersion (datazuul/amadeos-ci scripts/next-version.sh); a build without it is a local development build.
+version = findProperty('appVersion') ?: '0.0.0-dev.0'
+// Debian sorts 1.1.0~dev.57 before 1.1.0 (with - it would sort after it).
+def debVersion = version.toString().replace('-', '~')
+// --8<-- [end:version]
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+application {
+    mainClass = 'eu.amadeos.apps.backup.bootstrap.AmadeBackupApplication'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    // Theme, Motif look, start-up and XDG helpers shared by all amadeOS applications.
+    // With ../amade-commons checked out, settings.gradle builds that checkout instead (composite build).
+    implementation 'com.github.datazuul:amade-commons:v1.0.0'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.5.18'
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    // Tests compare English texts, whatever the language of the build machine.
+    systemProperty 'user.language', 'en'
+    systemProperty 'user.country', 'US'
+}
+
+jar {
+    archiveBaseName = 'amade-backup'
+    manifest {
+        attributes(
+            'Main-Class': 'eu.amadeos.apps.backup.bootstrap.AmadeBackupApplication',
+            'Implementation-Title': 'amade-backup',
+            'Implementation-Version': project.version
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    // Signed dependency jars would otherwise invalidate the fat jar.
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.register('deb') {
+    dependsOn jar
+    description = 'Builds a standard Debian (.deb) package for amade-backup'
+    group = 'distribution'
+
+    doLast {
+        def buildDirFile = layout.buildDirectory.get().asFile
+        def stagingDir = new File(buildDirFile, 'deb-staging')
+        delete(stagingDir)
+
+        def optDir = new File(stagingDir, 'opt/amade-backup')
+        def binDir = new File(stagingDir, 'usr/bin')
+        def appDir = new File(stagingDir, 'usr/share/applications')
+        def iconDir = new File(stagingDir, 'usr/share/icons/hicolor/48x48/apps')
+        def docDir = new File(stagingDir, 'usr/share/doc/amade-backup')
+        def debianDir = new File(stagingDir, 'DEBIAN')
+        def distDir = new File(buildDirFile, 'distributions')
+        [optDir, binDir, appDir, iconDir, docDir, debianDir, distDir]*.mkdirs()
+
+        copy {
+            from jar.archiveFile
+            into optDir
+            rename { 'amade-backup.jar' }
+        }
+
+        def launcher = new File(binDir, 'amade-backup')
+        launcher.text = """#!/bin/sh
+exec /usr/bin/java -jar /opt/amade-backup/amade-backup.jar "\$@"
+"""
+        launcher.setExecutable(true, false)
+
+        copy {
+            from 'packaging/amade-backup.desktop'
+            into appDir
+        }
+        // AppStream metadata: name, description and screenshot for amadeOS Software (and a repository's
+        // appstream-generator).
+        copy {
+            from 'packaging/eu.amadeos.apps.backup.metainfo.xml'
+            into new File(stagingDir, "usr/share/metainfo")
+        }
+        copy {
+            from 'src/main/resources/icons/amade-backup.png'
+            into iconDir
+        }
+        copy {
+            from 'LICENSE'
+            into docDir
+            rename { 'copyright' }
+        }
+
+        new File(debianDir, 'control').text = """Package: amade-backup
+Version: ${debVersion}
+Section: utils
+Priority: optional
+Architecture: all
+Depends: openjdk-25-jre | java-runtime (>= 25), restic
+Maintainer: amadeOS Project <developers@datazuul.com>
+Description: Backup and folder sync for amadeOS
+ Backs up the home folder and other folders to a USB disk or any other
+ folder: encrypted, with older versions kept by a keep policy, and
+ restored file by file or all at once. Backups are restic repositories,
+ so they can be read with restic on any computer, even without amadeOS.
+ Sync jobs mirror folders to a stick or a second disk, with a preview of
+ every copy and deletion first. Part of the amadeOS desktop.
+"""
+
+        def debFile = new File(distDir, "amade-backup_${debVersion}_all.deb")
+        def process = new ProcessBuilder('dpkg-deb', '--root-owner-group', '--build',
+                stagingDir.absolutePath, debFile.absolutePath)
+                .redirectErrorStream(true)
+                .start()
+        process.inputStream.eachLine { println it }
+        if (process.waitFor() != 0) {
+            throw new GradleException('dpkg-deb failed')
+        }
+        println "[deb] Created ${debFile.absolutePath}"
+    }
+}
+
+tasks.register('installToAmadeOs') {
+    dependsOn 'deb'
+    description = 'Builds and drops the .deb package into ../amadeos/config/packages.chroot/'
+    group = 'distribution'
+
+    doLast {
+        def targetDir = file('../amadeos/config/packages.chroot')
+        targetDir.mkdirs()
+        def debFile = new File(layout.buildDirectory.get().asFile, "distributions/amade-backup_${debVersion}_all.deb")
+        copy {
+            from debFile
+            into targetDir
+        }
+        println "[installToAmadeOs] Copied ${debFile.name} to ${targetDir.absolutePath}"
+    }
+}
+
+// The pictures of the README and the AppStream metadata, from the real windows on a test scene with real
+// restic backups: xvfb-run ./gradlew screenshots
+tasks.register('screenshots', JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'eu.amadeos.apps.backup.Screenshots'
+    args 'docs/screenshots'
+    systemProperty 'user.language', 'en'
+    systemProperty 'user.country', 'GB'
+}
