@@ -136,7 +136,7 @@ class MainPresenterTest {
         SyncRunner syncs = new SyncRunner(new SyncPlanner(trash), new SyncExecutor(trash), history,
                 CommandRunner.system(), home, Clock.systemUTC());
         presenter = new MainPresenter(view, EN, jobs, history, places, passwords, backups, syncs, null, new Inline(),
-                Runnable::run, Clock.system(ZoneOffset.UTC), home, () -> { });
+                Runnable::run, Clock.system(ZoneOffset.UTC), home, () -> { }, null);
     }
 
     private Job homeJob() {
@@ -232,7 +232,7 @@ class MainPresenterTest {
     void theGermanListLine() throws Exception {
         jobs.put(homeJob());
         MainPresenter german = new MainPresenter(view, DE, jobs, history, new Places(new Disks(dir, dir, dir)),
-                passwords, null, null, null, new Inline(), Runnable::run, Clock.systemUTC(), home, () -> { });
+                passwords, null, null, null, new Inline(), Runnable::run, Clock.systemUTC(), home, () -> { }, null);
         assertEquals("Noch nicht gelaufen", german.detail(homeJob(), null).headline());
     }
 }

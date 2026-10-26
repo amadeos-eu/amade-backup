@@ -106,6 +106,18 @@ exec /usr/bin/java -jar /opt/amade-backup/amade-backup.jar "\$@"
             from 'src/main/resources/icons/amade-backup.png'
             into iconDir
         }
+        // The helper's start at login: /etc/amadeos/autostart.d/60-amade-backup for the amadeOS session,
+        // /etc/xdg/autostart for other desktops. Files under etc/ are conffiles, so dpkg keeps the
+        // administrator's changes on upgrades.
+        copy {
+            from 'packaging/root'
+            into stagingDir
+        }
+        def conffiles = []
+        fileTree('packaging/root/etc').visit { details ->
+            if (!details.isDirectory()) conffiles << "/etc/${details.relativePath.pathString}"
+        }
+        new File(stagingDir, 'etc/amadeos/autostart.d/60-amade-backup').setExecutable(true, false)
         copy {
             from 'LICENSE'
             into docDir
@@ -127,6 +139,8 @@ Description: Backup and folder sync for amadeOS
  Sync jobs mirror folders to a stick or a second disk, with a preview of
  every copy and deletion first. Part of the amadeOS desktop.
 """
+
+        new File(debianDir, 'conffiles').text = conffiles.sort().join('\n') + '\n'
 
         def debFile = new File(distDir, "amade-backup_${debVersion}_all.deb")
         def process = new ProcessBuilder('dpkg-deb', '--root-owner-group', '--build',

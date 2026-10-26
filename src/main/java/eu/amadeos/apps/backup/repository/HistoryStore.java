@@ -43,6 +43,21 @@ public class HistoryStore {
         return directory(jobId).resolve("last-run.log");
     }
 
+    /** The newest change of any job's history, to notice runs of the helper; 0 without any. */
+    public long stamp() {
+        long newest = 0;
+        if (!Files.isDirectory(directory)) return newest;
+        try (var jobs = Files.newDirectoryStream(directory, Files::isDirectory)) {
+            for (Path job : jobs) {
+                Path file = job.resolve("history.json");
+                if (Files.isRegularFile(file)) newest = Math.max(newest, Files.getLastModifiedTime(file).toMillis());
+            }
+        } catch (IOException e) {
+            // unchanged then
+        }
+        return newest;
+    }
+
     public synchronized List<RunRecord> runs(String jobId) {
         Path file = directory(jobId).resolve("history.json");
         if (!Files.isRegularFile(file)) return List.of();

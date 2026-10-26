@@ -1,5 +1,6 @@
 package eu.amadeos.apps.backup.bootstrap;
 
+import eu.amadeos.apps.backup.agent.AgentMain;
 import eu.amadeos.apps.backup.ui.main.MainPresenter;
 import eu.amadeos.apps.backup.ui.main.MainWindow;
 import eu.amadeos.commons.app.AmadeApplication;
@@ -21,6 +22,10 @@ public final class AmadeBackupApplication {
     public static void main(String[] args) {
         if (args.length > 0 && (args[0].equals("--version") || args[0].equals("-v"))) {
             System.out.println("amade-backup " + version());
+            return;
+        }
+        if (args.length > 0 && args[0].equals("--agent")) {
+            AmadeApplication.launch(APP, AgentMain::start, new BackupModule());
             return;
         }
         AmadeApplication.launch(APP, injector -> {

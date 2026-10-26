@@ -1,0 +1,25 @@
+#!/bin/sh
+# Backup & Sync's helper (amade-backup --agent): runs the scheduled backups and syncs, also when their disk
+# is connected, and reminds of backups whose disk has been away too long. At low CPU and disk priority.
+# Ends at once when no job runs by itself (0) or another helper runs (3); Backup & Sync starts it again when
+# a job gets a schedule. Restarted if it crashes. Settings > Startup can switch it off.
+set -u
+
+command -v amade-backup >/dev/null 2>&1 || exit 0
+
+LOG_DIR="${XDG_CACHE_HOME:-${HOME:-/tmp}/.cache}/amadeos/logs"
+mkdir -p "$LOG_DIR" 2>/dev/null || LOG_DIR=/tmp
+LOG_FILE="$LOG_DIR/backup-agent.log"
+# Keep the log small: the previous one is kept as .old
+if [ -f "$LOG_FILE" ] && [ "$(wc -c < "$LOG_FILE")" -gt 1048576 ]; then
+    mv -f "$LOG_FILE" "$LOG_FILE.old"
+fi
+
+while :; do
+    nice -n 10 ionice -c3 amade-backup --agent >> "$LOG_FILE" 2>&1
+    case "$?" in
+        0|3) exit 0 ;;
+        126|127) exit 1 ;;
+        *) echo "[amade-backup-agent] restarting in 30s" >> "$LOG_FILE"; sleep 30 ;;
+    esac
+done

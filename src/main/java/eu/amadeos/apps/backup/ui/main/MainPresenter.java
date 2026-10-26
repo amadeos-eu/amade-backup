@@ -1,6 +1,7 @@
 package eu.amadeos.apps.backup.ui.main;
 
 import com.google.inject.Inject;
+import eu.amadeos.apps.backup.agent.AgentLauncher;
 import eu.amadeos.apps.backup.bootstrap.AmadeBackupApplication;
 import eu.amadeos.apps.backup.domain.FolderPair;
 import eu.amadeos.apps.backup.domain.HomeArea;
@@ -75,23 +76,27 @@ public class MainPresenter {
     private final Clock clock;
     private final Path home;
     private final Runnable exit;
+    private final AgentLauncher agent;
 
     private List<Job> list = List.of();
     private int selected = -1;
     private String engineVersion = "";
     private boolean busy;
+    private long historyStamp;
 
     @Inject
     public MainPresenter(MainView view, Messages msg, JobStore jobs, HistoryStore history, Places places,
                          Passwords passwords, BackupRunner backups, SyncRunner syncs, LocaleSettings locales,
-                         ExecutorService background, @Ui Executor ui, Clock clock, XdgDirectories xdg) {
+                         ExecutorService background, @Ui Executor ui, Clock clock, XdgDirectories xdg,
+                         AgentLauncher agent) {
         this(view, msg, jobs, history, places, passwords, backups, syncs, locales, background, ui, clock, xdg.home(),
-                () -> System.exit(0));
+                () -> System.exit(0), agent);
     }
 
     public MainPresenter(MainView view, Messages msg, JobStore jobs, HistoryStore history, Places places,
                          Passwords passwords, BackupRunner backups, SyncRunner syncs, LocaleSettings locales,
-                         ExecutorService background, Executor ui, Clock clock, Path home, Runnable exit) {
+                         ExecutorService background, Executor ui, Clock clock, Path home, Runnable exit,
+                         AgentLauncher agent) {
         this.view = view;
         this.msg = msg;
         this.formats = new Formats(msg, clock.getZone());
@@ -107,6 +112,7 @@ public class MainPresenter {
         this.clock = clock;
         this.home = home;
         this.exit = exit;
+        this.agent = agent;
     }
 
     public Formats formats() {
@@ -126,6 +132,7 @@ public class MainPresenter {
             }
             String text = status;
             ui.execute(() -> view.showStatus(text));
+            startAgent(list);
         });
         if (list.isEmpty()) ui.execute(this::firstStart);
     }
@@ -139,6 +146,7 @@ public class MainPresenter {
 
     void reload(String selectId) {
         list = jobs.load();
+        historyStamp = history.stamp();
         if (selectId != null) {
             selected = -1;
             for (int i = 0; i < list.size(); i++) if (list.get(i).id().equals(selectId)) selected = i;
@@ -149,6 +157,17 @@ public class MainPresenter {
         for (Job job : list) rows.add(row(job));
         view.showJobs(rows, selected);
         showSelected();
+    }
+
+    /** Shows the runs the helper made while the window is open; the window calls it every few seconds. */
+    public void refreshIfChanged() {
+        if (busy || history.stamp() == historyStamp) return;
+        reload(selectedJob().map(Job::id).orElse(null));
+    }
+
+    /** Starts the helper when a job runs by itself and the helper is not running yet. */
+    private void startAgent(List<Job> all) {
+        if (agent != null) agent.ensureRunning(all);
     }
 
     public void select(int index) {
@@ -214,14 +233,7 @@ public class MainPresenter {
 
     /** No saved run for longer than the schedule allows (2 days for daily, 9 for weekly). */
     boolean overdue(Job job) {
-        Optional<RunRecord> saved = history.lastSaved(job.id());
-        if (saved.isEmpty()) return true;
-        Duration age = Duration.between(saved.get().started(), clock.instant());
-        return switch (job.schedule().frequency()) {
-            case DAILY -> age.toDays() >= 2;
-            case WEEKLY -> age.toDays() >= 9;
-            case MANUAL -> false;
-        };
+        return job.schedule().overdue(history.lastSaved(job.id()).map(RunRecord::started), clock.instant());
     }
 
     MainView.Detail detail(Job job, Integer backupCount) {
@@ -306,7 +318,8 @@ public class MainPresenter {
     }
 
     String when(Schedule s) {
-        return Describe.schedule(msg, s);
+        String text = Describe.schedule(msg, s);
+        return s.automatic() && agent != null && agent.switchedOff() ? text + msg.get("fact.when.off") : text;
     }
 
     String keep(KeepPolicy k) {
@@ -366,6 +379,8 @@ public class MainPresenter {
         try {
             jobs.put(job);
             reload(job.id());
+            List<Job> all = list;
+            background.execute(() -> startAgent(all));
             return true;
         } catch (IOException e) {
             view.showError(msg.format("error.save", jobs.file(), e.getMessage()));

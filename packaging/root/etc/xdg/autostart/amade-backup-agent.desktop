@@ -1,0 +1,20 @@
+[Desktop Entry]
+Type=Application
+Name=Backup & Sync helper
+Name[de]=Helfer von Sicherung & Abgleich
+Name[fr]=Assistant de Sauvegarde & Synchro
+Name[es]=Asistente de Copias & Sincronización
+Name[it]=Assistente di Backup & Sincronizzazione
+Comment=Runs the scheduled backups and syncs, also when their disk is connected
+Comment[de]=Führt die geplanten Sicherungen und Abgleiche aus, auch wenn ihr Datenträger angeschlossen wird
+Comment[fr]=Lance les sauvegardes et synchronisations planifiées, aussi quand leur disque est branché
+Comment[es]=Ejecuta las copias y sincronizaciones programadas, también al conectar su disco
+Comment[it]=Esegue i backup e le sincronizzazioni pianificati, anche quando il loro disco viene collegato
+Exec=nice -n 10 ionice -c3 amade-backup --agent
+Icon=amade-backup
+TryExec=amade-backup
+Terminal=false
+NoDisplay=true
+# In amadeOS the session starts it from /etc/amadeos/autostart.d/60-amade-backup
+NotShowIn=amadeOS;
+X-GNOME-Autostart-Delay=30

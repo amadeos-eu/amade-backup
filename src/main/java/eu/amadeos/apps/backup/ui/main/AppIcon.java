@@ -9,11 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /** The program's icon from {@code /icons/amade-backup.png}. */
-final class AppIcon {
+public final class AppIcon {
     private AppIcon() {
     }
 
-    static Image image() {
+    public static Image image() {
         try (InputStream in = AppIcon.class.getResourceAsStream("/icons/amade-backup.png")) {
             if (in != null) return ImageIO.read(in);
         } catch (IOException e) {
@@ -22,7 +22,7 @@ final class AppIcon {
         return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     }
 
-    static Icon icon(int size) {
+    public static Icon icon(int size) {
         return new ImageIcon(image().getScaledInstance(size, size, Image.SCALE_SMOOTH));
     }
 }
