@@ -21,6 +21,9 @@
 - **Sync** folders one way, as an update (copy what is new or newer) or as a mirror (the target becomes a copy, files that are no longer in the source go to the trash, never deleted for good). Every sync starts with a **preview**: what is copied, updated, removed or left out, with the reason, the sizes and the free space. Nothing happens until *Sync Now*. Times and names are compared in a way that works on FAT and exFAT sticks.
 
   ![Sync](docs/screenshots/amade-backup-sync.png)
+- **Runs by itself**: a small helper starts with the session (`amade-backup --agent`, at low CPU and disk priority) and runs each job at its time, every day or once a week. A time missed because the computer was off or the disk not connected is made up as soon as the disk is there, and a job can also run whenever its disk is plugged in. A sync that only copies runs at once; one that would remove files shows its preview first. While restic works, the busy light of the Front Panel shows a violet chaser. Nothing starts on a nearly empty battery. After a backup, once a week, restic reads the backups back to check them. There is no message after a run that worked; a small window reminds when a backup is overdue and its disk has been away (once a day at most), and tells when a run failed.
+
+  ![Reminder](docs/screenshots/amade-backup-reminder.png)
 - **History** of every job: when, how many files, new, changed, removed, added size, and the result; the log of a run is kept too. *Check* reads the backup and verifies it.
 - **Several jobs**: backups of any folders, syncs with several folder pairs, each with its own schedule and keep rule.
 - Five languages (English, Deutsch, Français, Español, Italiano), following the amadeOS desktop language.
@@ -49,14 +52,18 @@ Java 25, Swing and Guice; start-up, theme and language come from `AmadeApplicati
 | `run` | `BackupRunner`, `Restorer`, `SyncRunner`, `Places` (where a target is now), `Passwords` (keyring), `Readme`, `JobLock` |
 | `sync` | `SyncPlanner` (the preview), `SyncExecutor`, `Patterns`, `Trash` (freedesktop.org trash, also on other disks), `FileSystemInfo` |
 | `repository` | `JobStore` (`~/.config/amadeos/backup/jobs.json`), `HistoryStore` (`~/.local/state/amadeos/backup/<job>/`) |
-| `ui` | `main` (window, presenter, menus), `assistant` (home folder backup), `restore`, `sync` (preview), `edit` (job editor), `common` (progress, password, recovery sheet, formats) |
+| `agent` | `BackupAgent` (the helper: what is due, reminders, the weekly check), `Planner` (when a job runs, without threads or disks), `AgentState` (`~/.local/state/amadeos/backup/agent.json`), `Power`, `AgentLauncher` (the window starts the helper), `AgentMain` |
+| `ui` | `main` (window, presenter, menus), `assistant` (home folder backup), `restore`, `sync` (preview), `edit` (job editor), `notice` (the helper's reminders), `common` (progress, password, recovery sheet, formats) |
 
-The windows know nothing of restic, and the runners know nothing of Swing: the presenter starts runs on a background thread and shows their progress.
+The windows know nothing of restic, and the runners know nothing of Swing: the presenter starts runs on a background thread and shows their progress, the helper on its own thread.
+
+The helper is started at login by `/etc/amadeos/autostart.d/60-amade-backup` (on other desktops by `/etc/xdg/autostart/amade-backup-agent.desktop`) and can be switched off in Settings > Startup. It ends at once when no job runs by itself, and the window starts it again when a job gets a schedule. A lock in `~/.local/state/amadeos/backup/agent/` keeps it to one per user; its log is `~/.cache/amadeos/logs/backup-agent.log`. The window and the helper share the history, and the job locks keep a job from running twice.
 
 ## Build and run
 
 ```sh
 ./gradlew run                              # start
+./gradlew run --args=--agent               # the helper, without a window
 ./gradlew test                             # Swing tests need a display: xvfb-run ./gradlew test; some tests need restic
 ./gradlew deb                              # build/distributions/amade-backup_<version>_all.deb
 ./gradlew installToAmadeOs                 # the .deb into ../amadeos/config/packages.chroot/ for the ISO build
@@ -67,7 +74,7 @@ If `../amade-commons` is checked out next to this repository, Gradle builds agai
 
 ## Planned
 
-- A small helper that starts with the session and runs the scheduled jobs, also when a disk is connected, with a cell in the Front Panel
+- A cell in the Front Panel with the state of the backups
 - Backups to a network share or an SFTP server
 - An engine of our own behind `BackupEngine`
 

@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import eu.amadeos.apps.backup.agent.AgentLauncher;
 import eu.amadeos.apps.backup.disk.Disks;
 import eu.amadeos.apps.backup.engine.BackupEngine;
 import eu.amadeos.apps.backup.engine.restic.ResticEngine;
@@ -117,6 +118,14 @@ public final class BackupModule extends AbstractModule {
     @Singleton
     SyncRunner syncs(Trash trash, HistoryStore history, CommandRunner runner, XdgDirectories xdg, Clock clock) {
         return new SyncRunner(new SyncPlanner(trash), new SyncExecutor(trash), history, runner, xdg.home(), clock);
+    }
+
+    /** The helper's lock, the Startup switch of the Settings and its log next to the session's other logs. */
+    @Provides
+    @Singleton
+    AgentLauncher agent(@Named("state") Path state, XdgDirectories xdg) {
+        return new AgentLauncher(AgentLauncher.lockDirectory(state), xdg.amadeosConfig().resolve("startup.conf"),
+                AgentLauncher.process(xdg.cacheHome().resolve("amadeos/logs/backup-agent.log")));
     }
 
     @Provides

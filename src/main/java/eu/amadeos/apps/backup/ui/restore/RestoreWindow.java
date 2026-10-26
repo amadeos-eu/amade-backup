@@ -336,6 +336,8 @@ public final class RestoreWindow extends JFrame {
     }
 
     private static final String LOADING = "…";
+    /** Counts the folders asked for, on the event dispatch thread. */
+    private int folderRequest;
 
     /** A folder node: its absolute path in the backup and what the tree shows. */
     record Folder(String path, String label) {
@@ -390,15 +392,17 @@ public final class RestoreWindow extends JFrame {
     void showFolder(String dir) {
         if (current == null) return;
         Snapshot snapshot = current;
+        // Only the folder chosen last is shown, also when an earlier one takes longer to read
+        int request = ++folderRequest;
         searching = false;
         configureFileColumns();
         listing(snapshot, dir, entries -> {
-            if (snapshot != current) return;
+            if (snapshot != current || request != folderRequest) return;
             background.execute(() -> {
                 List<FileRow> rows = new ArrayList<>();
                 for (SnapshotEntry e : entries) rows.add(new FileRow(e, snapshot.id(), Comparison.of(e, Path.of(e.path()))));
                 new EdtExecutor().execute(() -> {
-                    if (snapshot != current || searching) return;
+                    if (snapshot != current || searching || request != folderRequest) return;
                     allRows = rows;
                     applyFilter();
                 });

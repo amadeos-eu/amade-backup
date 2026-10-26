@@ -40,7 +40,7 @@ class MainWindowTest {
                     new DesktopLauncher(), background, scene.xdg, scene.clock, scene.jobs);
             MainPresenter presenter = new MainPresenter(w[0], EN, scene.jobs, scene.history, scene.places,
                     scene.passwords, scene.backups, scene.syncs, null, background, new EdtExecutor(), scene.clock,
-                    scene.home, () -> { });
+                    scene.home, () -> { }, null);
             w[0].bind(presenter);
             w[0].setVisible(true);
             presenter.start();

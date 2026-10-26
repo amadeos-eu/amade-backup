@@ -143,6 +143,15 @@ public final class MainWindow extends JFrame implements MainView {
 
     public void bind(MainPresenter presenter) {
         this.presenter = presenter;
+        // Runs of the helper appear in the list while the window is open
+        javax.swing.Timer refresh = new javax.swing.Timer(5000, e -> presenter.refreshIfChanged());
+        refresh.start();
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                refresh.stop();
+            }
+        });
         menuBar = new MainMenuBar(presenter, msg, locales);
         setJMenuBar(menuBar);
         JPanel root = new JPanel(new BorderLayout());

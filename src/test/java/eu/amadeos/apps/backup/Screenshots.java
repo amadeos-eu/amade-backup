@@ -7,6 +7,7 @@ import eu.amadeos.apps.backup.ui.assistant.HomeAssistant;
 import eu.amadeos.apps.backup.ui.common.Formats;
 import eu.amadeos.apps.backup.ui.main.MainPresenter;
 import eu.amadeos.apps.backup.ui.main.MainWindow;
+import eu.amadeos.apps.backup.ui.notice.NoticeWindows;
 import eu.amadeos.apps.backup.ui.restore.RestoreWindow;
 import eu.amadeos.apps.backup.ui.sync.SyncPreviewDialog;
 import eu.amadeos.commons.desktop.DesktopLauncher;
@@ -76,7 +77,7 @@ public final class Screenshots {
                     new DesktopLauncher(), background, scene.xdg, scene.clock, scene.jobs);
             MainPresenter presenter = new MainPresenter(main[0], EN, scene.jobs, scene.history, scene.places,
                     scene.passwords, scene.backups, scene.syncs, null, background, new EdtExecutor(), scene.clock,
-                    scene.home, () -> { });
+                    scene.home, () -> { }, null);
             main[0].bind(presenter);
             main[0].setSize(1000, 660);
             main[0].setVisible(true);
@@ -146,6 +147,21 @@ public final class Screenshots {
         await(() -> find(assistant[0], "assistant.what.sum", JLabel.class).getText().contains("files"));
         save(assistant[0], out.resolve("amade-backup-assistant.png"));
         onEdt(assistant[0]::dispose);
+
+        // The helper's reminder, as it comes when the disk has been away for nine days
+        JDialog[] notice = new JDialog[1];
+        onEdt(() -> {
+            Formats formats = new Formats(EN, Scene.ZONE);
+            java.time.Instant now = scene.clock.instant();
+            java.time.Instant last = now.minus(java.time.Duration.ofDays(9));
+            String text = EN.format("agent.remind.disk", scene.homeJob.name(), formats.when(last, now), 9,
+                    scene.homeJob.target().diskLabel());
+            notice[0] = new NoticeWindows(EN, formats, () -> { }).show(scene.homeJob, EN.get("agent.remind.title"), text,
+                    "agent.later");
+        });
+        Thread.sleep(300);
+        save(notice[0], out.resolve("amade-backup-reminder.png"));
+        onEdt(notice[0]::dispose);
 
         onEdt(main[0]::dispose);
         background.shutdownNow();
