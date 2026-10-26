@@ -32,6 +32,10 @@ The backups are standard [restic](https://restic.net) repositories, in `amadeos-
 
 The program only talks to the `BackupEngine` interface. restic does the work today; an engine of our own could replace it later without changing the windows, the jobs or the history.
 
+## Platforms
+
+Linux only for now (amadeOS and other Linux desktops); the release builds only the Debian package. restic itself runs on Windows too, but the program finds disks through `/proc/mounts` and `/dev/disk/by-uuid`, puts removed files into the freedesktop.org trash and keeps passwords in the Secret Service keyring. A Windows version would need drive letters with volume serial numbers, the Recycle Bin, the Credential Manager and an MSI that brings `restic.exe` along.
+
 ## Architecture
 
 Java 25, Swing and Guice; start-up, theme and language come from `AmadeApplication` in amade-commons.
