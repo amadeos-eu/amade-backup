@@ -55,8 +55,8 @@
     <category>Archiving</category>
   </categories>
 
-  <url type="homepage">https://github.com/datazuul/amade-backup</url>
-  <url type="bugtracker">https://github.com/datazuul/amade-backup/issues</url>
+  <url type="homepage">https://github.com/amadeos-eu/amade-backup</url>
+  <url type="bugtracker">https://github.com/amadeos-eu/amade-backup/issues</url>
   <developer id="eu.amadeos">
     <name>amadeOS Project</name>
   </developer>
@@ -68,7 +68,7 @@
       <caption xml:lang="fr">La sauvegarde du dossier personnel avec son historique</caption>
       <caption xml:lang="es">La copia de la carpeta personal con su historial</caption>
       <caption xml:lang="it">Il backup della cartella personale con la sua cronologia</caption>
-      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup.png</image>
+      <image>https://raw.githubusercontent.com/amadeos-eu/amade-backup/main/docs/screenshots/amade-backup.png</image>
     </screenshot>
     <screenshot>
       <caption>Restoring files from the timeline</caption>
@@ -76,7 +76,7 @@
       <caption xml:lang="fr">Restaurer des fichiers depuis la frise</caption>
       <caption xml:lang="es">Restaurar archivos desde la línea de tiempo</caption>
       <caption xml:lang="it">Ripristinare file dalla linea del tempo</caption>
-      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-restore.png</image>
+      <image>https://raw.githubusercontent.com/amadeos-eu/amade-backup/main/docs/screenshots/amade-backup-restore.png</image>
     </screenshot>
     <screenshot>
       <caption>The preview of a folder sync</caption>
@@ -84,7 +84,7 @@
       <caption xml:lang="fr">L'aperçu d'une synchronisation de dossiers</caption>
       <caption xml:lang="es">La vista previa de una sincronización de carpetas</caption>
       <caption xml:lang="it">L'anteprima di una sincronizzazione di cartelle</caption>
-      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-sync.png</image>
+      <image>https://raw.githubusercontent.com/amadeos-eu/amade-backup/main/docs/screenshots/amade-backup-sync.png</image>
     </screenshot>
     <screenshot>
       <caption>The assistant for the home folder backup</caption>
@@ -92,7 +92,7 @@
       <caption xml:lang="fr">L'assistant de sauvegarde du dossier personnel</caption>
       <caption xml:lang="es">El asistente de la copia de la carpeta personal</caption>
       <caption xml:lang="it">L'assistente per il backup della cartella personale</caption>
-      <image>https://raw.githubusercontent.com/datazuul/amade-backup/main/docs/screenshots/amade-backup-assistant.png</image>
+      <image>https://raw.githubusercontent.com/amadeos-eu/amade-backup/main/docs/screenshots/amade-backup-assistant.png</image>
     </screenshot>
   </screenshots>
 

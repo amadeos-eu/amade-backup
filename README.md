@@ -1,6 +1,6 @@
 # amade-backup
 
-**amade-backup** ("Backup & Sync") is the backup program of the [amadeOS](https://github.com/datazuul/amadeos) desktop: versioned, encrypted backups of the home folder or any folders to an external disk, a restore window with a timeline, and folder syncs with a preview, for example music to the stick in the car. Built like the other amadeOS applications.
+**amade-backup** ("Backup & Sync") is the backup program of the [amadeOS](https://github.com/amadeos-eu/amadeos) desktop: versioned, encrypted backups of the home folder or any folders to an external disk, a restore window with a timeline, and folder syncs with a preview, for example music to the stick in the car. Built like the other amadeOS applications.
 
 ![License](https://img.shields.io/badge/license-EUPL--1.2-blue)
 ![Java](https://img.shields.io/badge/Java-25-orange)
@@ -27,7 +27,7 @@
 - **History** of every job: when, how many files, new, changed, removed, added size, and the result; the log of a run is kept too. *Check* reads the backup and verifies it.
 - **Several jobs**: backups of any folders, syncs with several folder pairs, each with its own schedule and keep rule.
 - Five languages (English, Deutsch, Français, Español, Italiano), following the amadeOS desktop language.
-- Theme colours and Motif look from [amade-commons](https://github.com/datazuul/amade-commons).
+- Theme colours and Motif look from [amade-commons](https://github.com/amadeos-eu/amade-commons).
 
 ## The backup engine
 
