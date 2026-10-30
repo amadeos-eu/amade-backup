@@ -23,7 +23,7 @@ jobs:
           # The version is computed from the history since the last release tag.
           fetch-depth: 0
       - id: version
-        uses: datazuul/amadeos-ci/version@main
+        uses: amadeos-eu/amadeos-ci/version@main
         with:
           metainfo: packaging/eu.amadeos.apps.backup.metainfo.xml
       # --8<-- [end:version]
@@ -103,7 +103,7 @@ jobs:
         with:
           name: amade-backup-deb
           path: dist
-      - uses: datazuul/amadeos-ci/release@main
+      - uses: amadeos-eu/amadeos-ci/release@main
         with:
           version: ${{ needs.test.outputs.version }}
           files: dist/*.deb
@@ -117,5 +117,5 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: datazuul/amadeos-ci/check-commits@main
+      - uses: amadeos-eu/amadeos-ci/check-commits@main
   # --8<-- [end:commits]
