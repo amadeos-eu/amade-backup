@@ -46,4 +46,27 @@ class NoticeWindowsTest {
             assertFalse(second.isDisplayable());
         });
     }
+
+    @Test
+    void remindersAndProblemsBecomeDesktopNotificationsThatReplaceEachOther() {
+        int[] opened = {0};
+        java.util.List<eu.amadeos.commons.desktop.Notification> sent = new java.util.ArrayList<>();
+        NoticeWindows notices = new NoticeWindows(EN, new Formats(EN, ZoneOffset.UTC), () -> opened[0]++, n -> {
+            sent.add(n);
+            return 40 + sent.size();
+        });
+        Job job = Job.backup("docs", "Documents", java.util.List.of(java.nio.file.Path.of("/home/ralf/Documents")),
+                Target.onDisk("1234-ABCD", "BACKUP", java.nio.file.Path.of("amadeos-backup/docs")));
+        notices.remind(job, "Connect the disk <BACKUP>");
+        assertEquals(EN.get("agent.remind.title"), sent.get(0).summary());
+        assertEquals("Connect the disk &lt;BACKUP&gt;", sent.get(0).body());
+        assertEquals("Open Backup & Sync", sent.get(0).actions().get(0).label());
+        sent.get(0).actions().get(0).run().run();
+        sent.get(0).defaultAction().run();
+        assertEquals(2, opened[0]);
+
+        notices.problem(job, "It failed");
+        assertEquals(41, sent.get(1).replaces(), "replaces the reminder of the same job");
+        assertEquals(eu.amadeos.commons.desktop.Notification.Urgency.CRITICAL, sent.get(1).urgency());
+    }
 }
