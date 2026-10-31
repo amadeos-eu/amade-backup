@@ -30,7 +30,7 @@ repositories {
 dependencies {
     // Theme, Motif look, start-up and XDG helpers shared by all amadeOS applications.
     // With ../amade-commons checked out, settings.gradle builds that checkout instead (composite build).
-    implementation 'com.github.amadeos-eu:amade-commons:v1.0.0'
+    implementation 'com.github.amadeos-eu:amade-commons:1205a3c725'
     runtimeOnly 'ch.qos.logback:logback-classic:1.5.18'
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
