@@ -6,6 +6,8 @@ import eu.amadeos.apps.backup.sync.SyncPlan;
 import eu.amadeos.apps.backup.ui.common.Formats;
 import eu.amadeos.apps.backup.ui.main.AppIcon;
 import eu.amadeos.apps.backup.ui.sync.SyncPreviewDialog;
+import eu.amadeos.commons.desktop.Notification;
+import eu.amadeos.commons.desktop.Notifications;
 import eu.amadeos.commons.i18n.Messages;
 import eu.amadeos.commons.i18n.Mnemonics;
 import eu.amadeos.commons.swing.AmadeUI;
@@ -22,36 +24,66 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.SystemTray;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.ToLongFunction;
 
 /**
- * The helper's small windows: a reminder or a problem with <i>Open Backup &amp; Sync</i> and <i>Later</i> or
- * <i>Close</i>, in the lower right corner above the Front Panel, and the sync preview. A notice for a job
- * that already has one open replaces it.
+ * What the helper shows: a reminder or a problem as a desktop notification with <i>Open Backup &amp; Sync</i>,
+ * and the sync preview. A notice for a job that already has one replaces it. Without a notification service and
+ * without a system tray, the notice is a small window in the lower right corner above the Front Panel, with
+ * <i>Later</i> or <i>Close</i>.
  */
 public final class NoticeWindows implements Notices {
     private final Messages msg;
     private final Formats formats;
     private final Runnable openApp;
     private final java.util.Map<String, JDialog> open = new java.util.HashMap<>();
+    private final ToLongFunction<Notification> sender;
+    /** The desktop notification of each job, so that the next one replaces it. */
+    private final java.util.Map<String, Long> notified = new java.util.concurrent.ConcurrentHashMap<>();
 
     /** @param openApp starts the Backup &amp; Sync window */
     public NoticeWindows(Messages msg, Formats formats, Runnable openApp) {
+        this(msg, formats, openApp, Notifications::send);
+    }
+
+    /** @param sender sends a desktop notification and returns its id, 0 when there is no notification service */
+    NoticeWindows(Messages msg, Formats formats, Runnable openApp, ToLongFunction<Notification> sender) {
         this.msg = msg;
         this.formats = formats;
         this.openApp = openApp;
+        this.sender = sender;
     }
 
     @Override
     public void remind(Job job, String text) {
-        SwingUtilities.invokeLater(() -> show(job, msg.get("agent.remind.title"), text, "agent.later"));
+        notice(job, msg.get("agent.remind.title"), text, "agent.later", Notification.Urgency.NORMAL);
     }
 
     @Override
     public void problem(Job job, String text) {
-        SwingUtilities.invokeLater(() -> show(job, msg.get("agent.problem.title"), text, "agent.close"));
+        notice(job, msg.get("agent.problem.title"), text, "agent.close", Notification.Urgency.CRITICAL);
     }
+
+    // --8<-- [start:notice]
+    private void notice(Job job, String title, String text, String dismissKey, Notification.Urgency urgency) {
+        long id = sender.applyAsLong(Notification.of(title)
+                .body(Notification.escape(text))
+                .icon(AppIcon.image())
+                .urgency(urgency)
+                .category(urgency == Notification.Urgency.CRITICAL ? "x-amade.backup.error" : "x-amade.backup.reminder")
+                .replacing(notified.getOrDefault(job.id(), 0L))
+                .action("open", Mnemonics.strip(msg.get("agent.open")), openApp)
+                .defaultAction(openApp));
+        if (id != 0) {
+            notified.put(job.id(), id);
+        } else if (!SystemTray.isSupported()) {
+            SwingUtilities.invokeLater(() -> show(job, title, text, dismissKey));
+        }
+    }
+    // --8<-- [end:notice]
 
     @Override
     public void offerSync(Job job, List<SyncPlan> plans, Consumer<Boolean> answer) {
